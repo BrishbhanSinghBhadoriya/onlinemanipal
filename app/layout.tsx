@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import Script from "next/script";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -13,16 +14,13 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://degree-admission.online/"), // change to your domain
-
+  metadataBase: new URL("https://degree-admission.online/"),
   title: {
     default: "Manipal University Jaipur Admission 2026 | Courses, Fees, Apply Online",
     template: "%s | Manipal University Jaipur 2026",
   },
-
   description:
     "Apply for Manipal University Jaipur Admission 2026. Check courses, fees, eligibility, admission process, placements, and online application details for UG & PG programs.",
-
   keywords: [
     "Manipal University Jaipur Admission 2026",
     "MUJ Jaipur courses and fees",
@@ -32,10 +30,8 @@ export const metadata: Metadata = {
     "MUJ apply online 2026",
     "distance and online Manipal Jaipur",
   ],
-
   authors: [{ name: "MUJ Affiliate" }],
   creator: "MUJ",
-
   openGraph: {
     title: "Manipal University Jaipur Admission 2026",
     description:
@@ -44,7 +40,7 @@ export const metadata: Metadata = {
     siteName: "manipal admission 2026",
     images: [
       {
-        url: "/manipal-og.jpg", // add this image in public folder
+        url: "/manipal-og.jpg",
         width: 1200,
         height: 630,
         alt: "Manipal University Jaipur Admission 2026",
@@ -53,7 +49,6 @@ export const metadata: Metadata = {
     locale: "en_IN",
     type: "website",
   },
-
   twitter: {
     card: "summary_large_image",
     title: "Manipal University Jaipur Admission 2026",
@@ -61,12 +56,10 @@ export const metadata: Metadata = {
       "Courses, Fees, Eligibility & Apply Online for Manipal University Jaipur Admission 2026.",
     images: ["/manipal-og.jpg"],
   },
-
   robots: {
     index: true,
     follow: true,
   },
-
   icons: {
     icon: "/favicon.ico",
   },
@@ -81,6 +74,21 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         {children}
+
+        {/* ✅ Manipal Google Ads Scripts */}
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=AW-17973331962"
+          strategy="afterInteractive"
+        />
+        <Script id="google-ads" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'AW-17973331962');
+          `}
+        </Script>
+
       </body>
     </html>
   );

@@ -791,7 +791,7 @@ const VISIBLE = 3;
       {/* Footer */}
       <footer>
         <p>Disclaimer: We act as a marketing service partner only. Manipal University hold full rights to request change or removal of any less relevant content. Images used are for illustrative purposes and do not directly represent the respective colleges or universities.</p>
-        <p className="footer-copy">© 2025 degree-admission.co.in. All rights reserved.</p>
+        <p className="footer-copy">© 2025 degree-admission.online All rights reserved.</p>
       </footer>
 
       <div className="sticky-contact">

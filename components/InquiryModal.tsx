@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, ChangeEvent, FormEvent } from "react";
+import { useRouter } from "next/navigation";
+
 
 interface FormData {
     fullName: string;
@@ -18,7 +20,9 @@ interface InquiryModalProps {
 }
 
 export default function InquiryModal({ isOpen, onClose, defaultCourse, afterAction }: InquiryModalProps) {
+    const router = useRouter();
     const [formData, setFormData] = useState<FormData>({
+
         fullName: "",
         email: "",
         mobile: "",
@@ -55,7 +59,12 @@ export default function InquiryModal({ isOpen, onClose, defaultCourse, afterActi
             if (data.success) {
                 setSuccess(true);
                 setFormData({ fullName: "", email: "", mobile: "", course: "", state: "" });
+                // Redirect to thank you page after a short delay to show success state (optional) or immediately
+                setTimeout(() => {
+                    router.push("/thank-you");
+                }, 500);
             } else {
+
                 setError(data.error || "Something went wrong. Please try again.");
             }
         } catch {
