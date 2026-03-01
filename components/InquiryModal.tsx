@@ -206,8 +206,10 @@ export default function InquiryModal({ isOpen, onClose, defaultCourse, afterActi
                             </select>
 
                             {error && <p style={{ color: "red", fontSize: "0.8rem", marginBottom: "10px" }}>{error}</p>}
+                            {loading && <p style={{ color: "#e85d26", fontSize: "0.9rem", fontWeight: 600, marginBottom: "10px", textAlign: "center" }}>your form are submiting please wait</p>}
 
                             <button
+
                                 type="submit"
                                 disabled={loading}
                                 style={{
@@ -223,7 +225,8 @@ export default function InquiryModal({ isOpen, onClose, defaultCourse, afterActi
                                     opacity: loading ? 0.7 : 1
                                 }}
                             >
-                                {loading ? "Submitting..." : "Apply Now"}
+                                {loading ? "Please wait..." : "Apply Now"}
+
                             </button>
                         </form>
                     </>
