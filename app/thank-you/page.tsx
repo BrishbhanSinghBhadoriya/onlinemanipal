@@ -8,11 +8,26 @@ export default function ThankYouPage() {
     const chatLink = "https://wa.me/917042646766?text=Hi%20I%20am%20interested%20in%20Online%20Manipal%20courses";
 
     useEffect(() => {
-        if (typeof window !== "undefined" && typeof (window as any).gtag === "function") {
-            (window as any).gtag("event", "conversion", {
-                send_to: "AW-17973331962/u2NJCIrsiIEcEPqPrfpC",
-            });
-        }
+        let attempts = 0;
+
+        const fireConversion = () => {
+            if (typeof (window as any).gtag === "function") {
+                (window as any).gtag("event", "conversion", {
+                    send_to: "AW-17973331962/u2NJCIrsiIEcEPqPrfpC",
+                });
+            } else if (attempts < 20) {
+                attempts++;
+                setTimeout(fireConversion, 100);
+            } else {
+                (window as any).dataLayer = (window as any).dataLayer || [];
+                (window as any).dataLayer.push({
+                    event: "conversion",
+                    send_to: "AW-17973331962/u2NJCIrsiIEcEPqPrfpC",
+                });
+            }
+        };
+
+        fireConversion();
     }, []);
 
     return (

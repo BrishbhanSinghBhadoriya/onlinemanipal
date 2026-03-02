@@ -11,6 +11,7 @@ interface FormData {
   state: string;
 }
 
+
 interface RankingItem {
   logo: string;
   text: string;
@@ -55,6 +56,7 @@ export default function OnlineManipalPage() {
   { title: "MBA", tag: "Most Popular", duration: "2 Years", rating: "4.8", students: "12,400", img: "/MBA.png" },
   { title: "MCA", tag: "Trending",     duration: "2 Years", rating: "4.7", students: "9,800",  img: "/mca.png" },
   { title: "M.Com", tag: "Finance",    duration: "2 Years", rating: "4.6", students: "7,200",  img: "/MCOM.png" },
+  { title: "MSc", tag: "Science",      duration: "2 Years", rating: "4.7", students: "5,500",  img: "/ma.png" },
   { title: "MA",   tag: "Arts",        duration: "2 Years", rating: "4.5", students: "6,100",  img: "/ma.png" },
 ];
 
@@ -64,7 +66,9 @@ const bachelorCourses = [
   { title: "B.Com", tag: "Finance",      duration: "3 Years", rating: "4.6", students: "9,000",  img: "/bcom.png" },
   { title: "BA",    tag: "Arts",         duration: "3 Years", rating: "4.5", students: "7,800",  img: "/ba.png" },
 ];
-
+const course = [
+"MBA", "MCA", "MCom","MSc","MA","BBA", "BCA", "BCom", "BA"
+]
 const VISIBLE = 3;
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedCourse, setSelectedCourse] = useState("");
@@ -90,7 +94,37 @@ const VISIBLE = 3;
     setIndex(0);
   };
 
-  const states = ["Delhi", "Maharashtra", "Karnataka", "Tamil Nadu", "Uttar Pradesh", "Rajasthan", "Gujarat"];
+  const states = [
+  "Andhra Pradesh",
+  "Arunachal Pradesh",
+  "Assam",
+  "Bihar",
+  "Chhattisgarh",
+  "Delhi",
+  "Goa",
+  "Gujarat",
+  "Haryana",
+  "Himachal Pradesh",
+  "Jharkhand",
+  "Karnataka",
+  "Kerala",
+  "Madhya Pradesh",
+  "Maharashtra",
+  "Manipur",
+  "Meghalaya",
+  "Mizoram",
+  "Nagaland",
+  "Odisha",
+  "Punjab",
+  "Rajasthan",
+  "Sikkim",
+  "Tamil Nadu",
+  "Telangana",
+  "Tripura",
+  "Uttar Pradesh",
+  "Uttarakhand",
+  "West Bengal"
+];
 
   useEffect(() => {
     const updateSlides = () => {
@@ -589,7 +623,7 @@ const VISIBLE = 3;
           <input name="mobile" placeholder="Mobile Number*" value={formData.mobile} onChange={handleInput} />
           <select name="course" value={formData.course} onChange={handleInput}>
             <option value="">Select Course*</option>
-            {courses.map((c) => (
+            {[...masterCourses, ...bachelorCourses].map((c) => (
               <option key={c.title} value={c.title}>
                 {c.title}
               </option>
