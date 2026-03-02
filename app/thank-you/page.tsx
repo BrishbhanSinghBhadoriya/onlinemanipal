@@ -9,10 +9,27 @@ export default function ThankYouPage() {
     const chatLink = "https://wa.me/917042646766?text=Hi%20I%20am%20interested%20in%20Online%20Manipal%20courses";
 
     useEffect(() => {
-        // Fire Google Ads conversion
+        // ✅ Meta Pixel Lead Event (WITH RETRY)
+        let metaAttempts = 0;
+
+        const fireMetaLead = () => {
+            if (typeof (window as any).fbq === "function") {
+                console.log("✅ Meta Pixel - Lead event fired!");
+                (window as any).fbq("track", "Lead");
+            } else if (metaAttempts < 20) {
+                metaAttempts++;
+                console.log(`⏳ Meta Pixel loading... attempt ${metaAttempts}`);
+                setTimeout(fireMetaLead, 100);
+            }
+        };
+
+        fireMetaLead();
+
+        // ✅ Google Ads Conversion Event
         let attempts = 0;
         const fireConversion = () => {
             if (typeof (window as any).gtag === "function") {
+                console.log("✅ Google Ads - Conversion fired!");
                 (window as any).gtag("event", "conversion", {
                     send_to: "AW-17973331962/u2NJCIrsiIEcEPqPrfpC",
                 });
@@ -20,6 +37,7 @@ export default function ThankYouPage() {
                 attempts++;
                 setTimeout(fireConversion, 100);
             } else {
+                console.log("🛟 Google Ads fallback - dataLayer push!");
                 (window as any).dataLayer = (window as any).dataLayer || [];
                 (window as any).dataLayer.push({
                     event: "conversion",
@@ -28,17 +46,12 @@ export default function ThankYouPage() {
             }
         };
         fireConversion();
-
-        // Fire Meta Pixel Lead conversion
-        if (typeof (window as any).fbq === "function") {
-            (window as any).fbq("track", "Lead");
-        }
     }, []);
 
     return (
         <div className="thank-you-root">
             {/* Facebook Pixel Script */}
-            <Script id="fb-pixel" strategy="afterInteractive">
+            <Script id="fb-pixel-thank-you" strategy="afterInteractive">
                 {`
                 !function(f,b,e,v,n,t,s)
                 {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
@@ -49,7 +62,6 @@ export default function ThankYouPage() {
                 'https://connect.facebook.net/en_US/fbevents.js');
                 fbq('init', '1230848505368304');
                 fbq('track', 'PageView');
-                fbq('track', 'Lead');
                 `}
             </Script>
             <noscript>

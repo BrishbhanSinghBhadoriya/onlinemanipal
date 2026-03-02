@@ -69,20 +69,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         
-        {/* ---------------- Google Ads Conversion ---------------- */}
-        <Script id="google-ads" strategy="afterInteractive">
-          {`
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-            gtag('config', 'AW-17973331962');
-            gtag('event', 'conversion', {
-              send_to: 'AW-17973331962/u2NJCIrsiIEcEPqPrfpC'
-            });
-          `}
-        </Script>
-
-        {/* ---------------- Meta Pixel (Facebook Pixel) ---------------- */}
+        {/* ✅ Meta Pixel - PageView Only */}
         <Script id="fb-pixel" strategy="afterInteractive">
           {`
             !function(f,b,e,v,n,t,s)
@@ -94,11 +81,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             'https://connect.facebook.net/en_US/fbevents.js');
             fbq('init', '1230848505368304');
             fbq('track', 'PageView');
-            fbq('track', 'Lead'); // Meta conversion
           `}
         </Script>
 
-        {/* ---------------- Meta Pixel noscript fallback ---------------- */}
+        {/* ✅ Meta Pixel noscript fallback */}
         <noscript>
           <img
             height="1"
