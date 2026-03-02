@@ -6,6 +6,7 @@ const InquirySchema = new Schema({
     mobile: { type: String, required: true },
     course: { type: String, required: true },
     state: { type: String, required: true },
+    source: { type: String },
     createdAt: { type: Date, default: Date.now },
 });
 

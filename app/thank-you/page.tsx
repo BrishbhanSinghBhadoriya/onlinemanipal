@@ -2,14 +2,15 @@
 
 import Link from "next/link";
 import { useEffect } from "react";
+import Script from "next/script";
 
 export default function ThankYouPage() {
     const callLink = "tel:+917042646766";
     const chatLink = "https://wa.me/917042646766?text=Hi%20I%20am%20interested%20in%20Online%20Manipal%20courses";
 
     useEffect(() => {
+        // Fire Google Ads conversion
         let attempts = 0;
-
         const fireConversion = () => {
             if (typeof (window as any).gtag === "function") {
                 (window as any).gtag("event", "conversion", {
@@ -26,12 +27,41 @@ export default function ThankYouPage() {
                 });
             }
         };
-
         fireConversion();
+
+        // Fire Meta Pixel Lead conversion
+        if (typeof (window as any).fbq === "function") {
+            (window as any).fbq("track", "Lead");
+        }
     }, []);
 
     return (
         <div className="thank-you-root">
+            {/* Facebook Pixel Script */}
+            <Script id="fb-pixel" strategy="afterInteractive">
+                {`
+                !function(f,b,e,v,n,t,s)
+                {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+                n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+                if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+                n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];
+                s.parentNode.insertBefore(t,s)}(window, document,'script',
+                'https://connect.facebook.net/en_US/fbevents.js');
+                fbq('init', '1230848505368304');
+                fbq('track', 'PageView');
+                fbq('track', 'Lead');
+                `}
+            </Script>
+            <noscript>
+                <img
+                    height="1"
+                    width="1"
+                    style={{ display: "none" }}
+                    src="https://www.facebook.com/tr?id=1230848505368304&ev=PageView&noscript=1"
+                    alt="fb-pixel"
+                />
+            </noscript>
+
             <style>{`
         .thank-you-root {
           min-height: 100vh;

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, ChangeEvent, FormEvent } from "react";
+import { useState, ChangeEvent, FormEvent, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 
@@ -10,16 +10,18 @@ interface FormData {
     mobile: string;
     course: string;
     state: string;
+    source: string;
 }
 
 interface InquiryModalProps {
     isOpen: boolean;
     onClose: () => void;
     defaultCourse?: string;
+    sourceId?: string;
     afterAction?: "call" | "chat";
 }
 
-export default function InquiryModal({ isOpen, onClose, defaultCourse, afterAction }: InquiryModalProps) {
+export default function InquiryModal({ isOpen, onClose, defaultCourse, sourceId, afterAction }: InquiryModalProps) {
     const router = useRouter();
     const [formData, setFormData] = useState<FormData>({
 
@@ -28,12 +30,19 @@ export default function InquiryModal({ isOpen, onClose, defaultCourse, afterActi
         mobile: "",
         course: defaultCourse || "",
         state: "",
+        source: sourceId || "",
     });
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const callLink = "tel:+917042646766";
     const chatLink = "https://wa.me/917042646766?text=Hi%20I%20am%20interested%20in%20Online%20Manipal%20courses";
+
+    useEffect(() => {
+        if (typeof window !== "undefined") {
+            setFormData(prev => ({ ...prev, source: sourceId || window.location.href }));
+        }
+    }, [sourceId]);
 
     const courses = ["MBA", "MCA", "MCom","MSc","MA","BBA", "BCA", "BCom", "BA"];
     const states = [
@@ -88,7 +97,7 @@ export default function InquiryModal({ isOpen, onClose, defaultCourse, afterActi
 
             if (data.success) {
                 setSuccess(true);
-                setFormData({ fullName: "", email: "", mobile: "", course: "", state: "" });
+                setFormData({ fullName: "", email: "", mobile: "", course: "", state: "", source: window.location.href });
                 // Redirect to thank you page after a short delay to show success state (optional) or immediately
                 setTimeout(() => {
                     router.push("/thank-you");
