@@ -3,17 +3,16 @@
 import { useState, ChangeEvent, FormEvent, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
-
 interface FormData {
-    fullName: string;
+    name: string;
     email: string;
-    mobile: string;
-    course: string;
+    phone: string;
+    program: string;
     state: string;
     source: string;
 }
 
-interface InquiryModalProps {
+interface EnquiryModalProps {
     isOpen: boolean;
     onClose: () => void;
     defaultCourse?: string;
@@ -21,16 +20,15 @@ interface InquiryModalProps {
     afterAction?: "call" | "chat";
 }
 
-export default function InquiryModal({ isOpen, onClose, defaultCourse, sourceId, afterAction }: InquiryModalProps) {
+export default function EnquiryModal({ isOpen, onClose, defaultCourse, sourceId, afterAction }: EnquiryModalProps) {
     const router = useRouter();
     const [formData, setFormData] = useState<FormData>({
-
-        fullName: "",
+        name: "",
         email: "",
-        mobile: "",
-        course: defaultCourse || "",
+        phone: "",
+        program: defaultCourse || "",
         state: "",
-        source: sourceId || "",
+        source: "manipal",
     });
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
@@ -38,44 +36,37 @@ export default function InquiryModal({ isOpen, onClose, defaultCourse, sourceId,
     const callLink = "tel:+917042646766";
     const chatLink = "https://wa.me/917042646766?text=Hi%20I%20am%20interested%20in%20Online%20Manipal%20courses";
 
+    // ✅ source hamesha "manipal" rahega
     useEffect(() => {
-        if (typeof window !== "undefined") {
-            setFormData(prev => ({ ...prev, source: sourceId || window.location.href }));
-        }
-    }, [sourceId]);
+        setFormData(prev => ({ ...prev, source: "manipal" }));
+    }, []);
 
-    const courses = ["MBA", "MCA", "MCom","MSc","MA","BBA", "BCA", "BCom", "BA"];
+    // ✅ defaultCourse change hone pe update karo
+    useEffect(() => {
+        if (defaultCourse) {
+            setFormData(prev => ({ ...prev, program: defaultCourse }));
+        }
+    }, [defaultCourse]);
+
+    // ✅ Body scroll band karo jab modal open ho
+    useEffect(() => {
+        if (isOpen) {
+            document.body.style.overflow = "hidden";
+        } else {
+            document.body.style.overflow = "unset";
+        }
+        return () => { document.body.style.overflow = "unset"; };
+    }, [isOpen]);
+
+    const courses = ["MBA", "MCA", "MCom", "MSc", "MA", "BBA", "BCA", "BCom", "BA"];
     const states = [
-  "Andhra Pradesh",
-  "Arunachal Pradesh",
-  "Assam",
-  "Bihar",
-  "Chhattisgarh",
-  "Delhi",
-  "Goa",
-  "Gujarat",
-  "Haryana",
-  "Himachal Pradesh",
-  "Jharkhand",
-  "Karnataka",
-  "Kerala",
-  "Madhya Pradesh",
-  "Maharashtra",
-  "Manipur",
-  "Meghalaya",
-  "Mizoram",
-  "Nagaland",
-  "Odisha",
-  "Punjab",
-  "Rajasthan",
-  "Sikkim",
-  "Tamil Nadu",
-  "Telangana",
-  "Tripura",
-  "Uttar Pradesh",
-  "Uttarakhand",
-  "West Bengal"
-];
+        "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh",
+        "Delhi", "Goa", "Gujarat", "Haryana", "Himachal Pradesh", "Jharkhand",
+        "Karnataka", "Kerala", "Madhya Pradesh", "Maharashtra", "Manipur",
+        "Meghalaya", "Mizoram", "Nagaland", "Odisha", "Punjab", "Rajasthan",
+        "Sikkim", "Tamil Nadu", "Telangana", "Tripura", "Uttar Pradesh",
+        "Uttarakhand", "West Bengal"
+    ];
 
     const handleInput = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>): void => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -87,23 +78,44 @@ export default function InquiryModal({ isOpen, onClose, defaultCourse, sourceId,
         setError(null);
 
         try {
-            const res = await fetch("/api/inquiry", {
+            // ✅ Phone validation: Exactly 10 digits
+            const cleanPhone = formData.phone.replace(/\D/g, "");
+            if (cleanPhone.length !== 10) {
+                setError("Please enter a valid 10-digit phone number.");
+                setLoading(false);
+                return;
+            }
+
+            // ✅ source hamesha "manipal", url bhi bhej rahe hain
+            const payload = {
+                ...formData,
+                phone: cleanPhone,
+                source: "manipal",
+                url: typeof window !== "undefined" ? window.location.href : undefined,
+            };
+
+            const res = await fetch("/api/enquiry", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(formData),
+                body: JSON.stringify(payload),
             });
 
             const data = await res.json();
 
-            if (data.success) {
+            if (data.ok) {
                 setSuccess(true);
-                setFormData({ fullName: "", email: "", mobile: "", course: "", state: "", source: window.location.href });
-                // Redirect to thank you page after a short delay to show success state (optional) or immediately
+                setFormData({
+                    name: "",
+                    email: "",
+                    phone: "",
+                    program: "",
+                    state: "",
+                    source: "manipal",
+                });
                 setTimeout(() => {
                     router.push("/thank-you");
-                }, 500);
+                }, 2000);
             } else {
-
                 setError(data.error || "Something went wrong. Please try again.");
             }
         } catch {
@@ -116,19 +128,25 @@ export default function InquiryModal({ isOpen, onClose, defaultCourse, sourceId,
     if (!isOpen) return null;
 
     return (
-        <div style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            width: "100%",
-            height: "100%",
-            backgroundColor: "rgba(0,0,0,0.6)",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            zIndex: 1000,
-            backdropFilter: "blur(4px)"
-        }}>
+        // ✅ Outside click se modal band hoga
+        <div
+            style={{
+                position: "fixed",
+                top: 0,
+                left: 0,
+                width: "100%",
+                height: "100%",
+                backgroundColor: "rgba(0,0,0,0.6)",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                zIndex: 1000,
+                backdropFilter: "blur(4px)"
+            }}
+            onClick={(e) => {
+                if (e.target === e.currentTarget) onClose();
+            }}
+        >
             <div style={{
                 backgroundColor: "white",
                 padding: "32px",
@@ -169,7 +187,8 @@ export default function InquiryModal({ isOpen, onClose, defaultCourse, sourceId,
                                     textDecoration: "none",
                                     padding: "12px",
                                     borderRadius: "8px",
-                                    fontWeight: 700
+                                    fontWeight: 700,
+                                    textAlign: "center"
                                 }}
                             >
                                 📞 Call Now
@@ -185,7 +204,8 @@ export default function InquiryModal({ isOpen, onClose, defaultCourse, sourceId,
                                     textDecoration: "none",
                                     padding: "12px",
                                     borderRadius: "8px",
-                                    fontWeight: 700
+                                    fontWeight: 700,
+                                    textAlign: "center"
                                 }}
                             >
                                 💬 Live Chat
@@ -194,23 +214,23 @@ export default function InquiryModal({ isOpen, onClose, defaultCourse, sourceId,
                     </div>
                 ) : (
                     <>
-                        <h3 style={{ textAlign: "center", fontSize: "1.4rem", fontWeight: 800, color: "#1a1a2e", marginBottom: "6px" }}>Speak to an admission counsellor</h3>
+                        <h3 style={{ textAlign: "center", fontSize: "1.4rem", fontWeight: 800, color: "#1a1a2e", marginBottom: "6px" }}>
+                            Speak to an admission counsellor
+                        </h3>
                         <div style={{ display: "flex", justifyContent: "center", gap: "12px", marginBottom: "16px" }}>
                             <div style={{ display: "flex", alignItems: "center", gap: "6px", color: "#0a7d32", fontSize: "0.9rem", fontWeight: 700 }}>
-                                <span>✔</span>
-                                <span>Online Exam</span>
+                                <span>✔</span><span>Online Exam</span>
                             </div>
                             <div style={{ display: "flex", alignItems: "center", gap: "6px", color: "#0a7d32", fontSize: "0.9rem", fontWeight: 700 }}>
-                                <span>✔</span>
-                                <span>100% Placement Assistance</span>
+                                <span>✔</span><span>100% Placement Assistance</span>
                             </div>
                         </div>
 
                         <form onSubmit={handleSubmit}>
                             <input
-                                name="fullName"
+                                name="name"
                                 placeholder="Full Name*"
-                                value={formData.fullName}
+                                value={formData.name}
                                 onChange={handleInput}
                                 required
                                 style={{ width: "100%", padding: "14px", marginBottom: "12px", borderRadius: "12px", border: "1px solid #e6e6e6" }}
@@ -225,16 +245,16 @@ export default function InquiryModal({ isOpen, onClose, defaultCourse, sourceId,
                                 style={{ width: "100%", padding: "14px", marginBottom: "12px", borderRadius: "12px", border: "1px solid #e6e6e6" }}
                             />
                             <input
-                                name="mobile"
+                                name="phone"
                                 placeholder="Mobile Number*"
-                                value={formData.mobile}
+                                value={formData.phone}
                                 onChange={handleInput}
                                 required
                                 style={{ width: "100%", padding: "14px", marginBottom: "12px", borderRadius: "12px", border: "1px solid #e6e6e6" }}
                             />
                             <select
-                                name="course"
-                                value={formData.course}
+                                name="program"
+                                value={formData.program}
                                 onChange={handleInput}
                                 required
                                 style={{ width: "100%", padding: "14px", marginBottom: "12px", borderRadius: "12px", border: "1px solid #e6e6e6" }}
@@ -252,13 +272,21 @@ export default function InquiryModal({ isOpen, onClose, defaultCourse, sourceId,
                                 <option value="">Select State*</option>
                                 {states.map((s) => <option key={s}>{s}</option>)}
                             </select>
-                            <p style={{ textAlign: "center", fontSize: "0.85rem", color: "#666", marginBottom: "16px" }}>Your personal information is secure with us</p>
 
-                            {error && <p style={{ color: "red", fontSize: "0.8rem", marginBottom: "10px" }}>{error}</p>}
-                            {loading && <p style={{ color: "#e85d26", fontSize: "0.9rem", fontWeight: 600, marginBottom: "10px", textAlign: "center" }}>your form are submiting please wait</p>}
+                            <p style={{ textAlign: "center", fontSize: "0.85rem", color: "#666", marginBottom: "16px" }}>
+                                Your personal information is secure with us
+                            </p>
+
+                            {error && (
+                                <p style={{ color: "red", fontSize: "0.8rem", marginBottom: "10px", textAlign: "center" }}>{error}</p>
+                            )}
+                            {loading && (
+                                <p style={{ color: "#e85d26", fontSize: "0.9rem", fontWeight: 600, marginBottom: "10px", textAlign: "center" }}>
+                                    Submitting your form, please wait...
+                                </p>
+                            )}
 
                             <button
-
                                 type="submit"
                                 disabled={loading}
                                 style={{
@@ -275,7 +303,6 @@ export default function InquiryModal({ isOpen, onClose, defaultCourse, sourceId,
                                 }}
                             >
                                 {loading ? "Please wait..." : "Apply Now"}
-
                             </button>
                         </form>
                     </>

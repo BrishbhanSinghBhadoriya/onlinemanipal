@@ -1,48 +1,65 @@
+import { MongoClient, Db, Collection, Document } from "mongodb";
 import mongoose from "mongoose";
 
-const MONGO_URI = process.env.MONGO_URI!;
-const DB_NAME = process.env.MONGO_DB_NAME ?? "onlinemanipal";
+const uri = process.env.MONGODB_URI;
+const options = {};
 
-if (!MONGO_URI) {
-  throw new Error("Please define the MONGO_URI environment variable inside .env.local");
+if (!uri) {
+  throw new Error('Invalid/Missing environment variable: "MONGODB_URI"');
 }
 
-type MongooseCache = {
-  conn: typeof mongoose | null;
-  promise: Promise<typeof mongoose> | null;
-};
+let client: MongoClient;
+let clientPromise: Promise<MongoClient>;
 
 declare global {
-  var mongooseCache: MongooseCache | undefined;
+  var _mongoClientPromise: Promise<MongoClient> | undefined;
+  var mongoose: { conn: any; promise: any } | undefined;
 }
 
-const cached: MongooseCache = globalThis.mongooseCache ?? { conn: null, promise: null };
-globalThis.mongooseCache = cached;
-
-async function dbConnect() {
-  if (cached.conn) {
-    return cached.conn;
+if (process.env.NODE_ENV === "development") {
+  if (!global._mongoClientPromise) {
+    client = new MongoClient(uri, options);
+    global._mongoClientPromise = client.connect();
   }
+  clientPromise = global._mongoClientPromise;
+} else {
+  client = new MongoClient(uri, options);
+  clientPromise = client.connect();
+}
 
-  if (!cached.promise) {
+/**
+ * Helper to get a MongoDB collection (Native Driver)
+ */
+export async function getCollection<T extends Document>(collectionName: string): Promise<Collection<T>> {
+  const client = await clientPromise;
+  const dbName = process.env.DB_NAME || "onlinemanipal";
+  return client.db(dbName).collection<T>(collectionName);
+}
+
+/**
+ * Mongoose Connection Helper
+ */
+let cached = global.mongoose;
+
+if (!cached) {
+  cached = global.mongoose = { conn: null, promise: null };
+}
+
+export async function connectDB() {
+  if (cached!.conn) return cached!.conn;
+
+  if (!cached!.promise) {
+    const dbName = process.env.DB_NAME || "onlinemanipal";
     const opts = {
       bufferCommands: false,
-      dbName: DB_NAME,
+      dbName: dbName,
     };
-
-    cached.promise = mongoose.connect(MONGO_URI, opts).then((mongoose) => {
+    cached!.promise = mongoose.connect(uri!, opts).then((mongoose) => {
       return mongoose;
     });
   }
-
-  try {
-    cached.conn = await cached.promise;
-  } catch (e) {
-    cached.promise = null;
-    throw e;
-  }
-
-  return cached.conn;
+  cached!.conn = await cached!.promise;
+  return cached!.conn;
 }
 
-export default dbConnect;
+export default clientPromise;
