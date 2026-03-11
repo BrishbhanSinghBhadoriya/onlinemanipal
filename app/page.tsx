@@ -11,6 +11,7 @@ interface FormData {
   program: string;
   state: string;
   source: string;
+  campaign: string;
 }
 
 interface RankingItem {
@@ -53,7 +54,8 @@ export default function OnlineManipalPage() {
     phone: "",
     program: "",
     state: "",
-    source: "manipal",
+    source: "",
+    campaign: "Google_Search",
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -105,7 +107,7 @@ export default function OnlineManipalPage() {
       const payload = {
         ...formData,
         phone: cleanPhone,        // ✅ clean phone bhejo
-        source: "manipal",        // ✅ source hamesha manipal
+        source: typeof window !== "undefined" ? window.location.href : "",
         url: typeof window !== "undefined" ? window.location.href : "",
       };
 
@@ -148,6 +150,12 @@ export default function OnlineManipalPage() {
     "Sikkim", "Tamil Nadu", "Telangana", "Tripura", "Uttar Pradesh",
     "Uttarakhand", "West Bengal"
   ];
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setFormData(prev => ({ ...prev, source: window.location.href }));
+    }
+  }, []);
 
   useEffect(() => {
     setFormData(prev => ({ ...prev, source: "manipal" }));
@@ -622,10 +630,11 @@ export default function OnlineManipalPage() {
 
       {/* EnquiryModal */}
       <EnquiryModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        defaultCourse={selectedCourse}
-      />
+  isOpen={isModalOpen}
+  onClose={() => setIsModalOpen(false)}
+  defaultCourse={selectedCourse}
+  campaign="Google_Search"
+/>
     </div>
   );
 }

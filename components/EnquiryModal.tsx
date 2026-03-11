@@ -10,6 +10,8 @@ interface FormData {
     program: string;
     state: string;
     source: string;
+    campaign: string;   // ✅ NEW
+    university: string; // ✅ NEW
 }
 
 interface EnquiryModalProps {
@@ -18,9 +20,10 @@ interface EnquiryModalProps {
     defaultCourse?: string;
     sourceId?: string;
     afterAction?: "call" | "chat";
+    campaign?: string; // ✅ NEW — "Meta" ya "Google_Search" pass karo
 }
 
-export default function EnquiryModal({ isOpen, onClose, defaultCourse, sourceId, afterAction }: EnquiryModalProps) {
+export default function EnquiryModal({ isOpen, onClose, defaultCourse, sourceId, afterAction, campaign }: EnquiryModalProps) {
     const router = useRouter();
     const [formData, setFormData] = useState<FormData>({
         name: "",
@@ -28,7 +31,9 @@ export default function EnquiryModal({ isOpen, onClose, defaultCourse, sourceId,
         phone: "",
         program: defaultCourse || "",
         state: "",
-        source: "manipal",
+        source: "",                          // ✅ URL — useEffect mein set hoga
+        campaign: campaign || "",
+        university: "Manipal University",  // hamesha fixed
     });
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
@@ -36,19 +41,28 @@ export default function EnquiryModal({ isOpen, onClose, defaultCourse, sourceId,
     const callLink = "tel:+917042646766";
     const chatLink = "https://wa.me/917042646766?text=Hi%20I%20am%20interested%20in%20Online%20Manipal%20courses";
 
-    // ✅ source hamesha "manipal" rahega
+    // ✅ URL client side set karo
     useEffect(() => {
-        setFormData(prev => ({ ...prev, source: "manipal" }));
+        if (typeof window !== "undefined") {
+            const currentUrl = window.location.href;
+            setFormData(prev => ({
+                ...prev,
+                source: currentUrl,
+            }));
+        }
     }, []);
 
-    // ✅ defaultCourse change hone pe update karo
+    // ✅ Campaign prop change hone pe update karo
+    useEffect(() => {
+        setFormData(prev => ({ ...prev, campaign: campaign || "" }));
+    }, [campaign]);
+
     useEffect(() => {
         if (defaultCourse) {
             setFormData(prev => ({ ...prev, program: defaultCourse }));
         }
     }, [defaultCourse]);
 
-    // ✅ Body scroll band karo jab modal open ho
     useEffect(() => {
         if (isOpen) {
             document.body.style.overflow = "hidden";
@@ -78,7 +92,6 @@ export default function EnquiryModal({ isOpen, onClose, defaultCourse, sourceId,
         setError(null);
 
         try {
-            // ✅ Phone validation: Exactly 10 digits
             const cleanPhone = formData.phone.replace(/\D/g, "");
             if (cleanPhone.length !== 10) {
                 setError("Please enter a valid 10-digit phone number.");
@@ -86,12 +99,12 @@ export default function EnquiryModal({ isOpen, onClose, defaultCourse, sourceId,
                 return;
             }
 
-            // ✅ source hamesha "manipal", url bhi bhej rahe hain
             const payload = {
                 ...formData,
                 phone: cleanPhone,
-                source: "manipal",
-                url: typeof window !== "undefined" ? window.location.href : undefined,
+                source: typeof window !== "undefined" ? window.location.href : "",  // ✅ source = URL
+                university: "Manipal University",
+                campaign: campaign || "",
             };
 
             const res = await fetch("/api/enquiry", {
@@ -110,7 +123,9 @@ export default function EnquiryModal({ isOpen, onClose, defaultCourse, sourceId,
                     phone: "",
                     program: "",
                     state: "",
-                    source: "manipal",
+                    source: typeof window !== "undefined" ? window.location.href : "",
+                    campaign: campaign || "",
+                    university: "Manipal University",
                 });
                 setTimeout(() => {
                     router.push("/thank-you");
@@ -128,7 +143,6 @@ export default function EnquiryModal({ isOpen, onClose, defaultCourse, sourceId,
     if (!isOpen) return null;
 
     return (
-        // ✅ Outside click se modal band hoga
         <div
             style={{
                 position: "fixed",

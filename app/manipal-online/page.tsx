@@ -11,6 +11,7 @@ interface FormData {
   program: string;
   state: string;
   source: string;
+  campaign: string;
 }
 
 interface RankingItem {
@@ -53,7 +54,8 @@ export default function OnlineManipalPage() {
     phone: "",
     program: "",
     state: "",
-    source: "manipal",
+    source: "",
+    campaign: "Meta_Search",
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -105,7 +107,7 @@ export default function OnlineManipalPage() {
       const payload = {
         ...formData,
         phone: cleanPhone,        // ✅ clean phone bhejo
-        source: "manipal",        // ✅ source hamesha manipal
+        source: typeof window !== "undefined" ? window.location.href : "",
         url: typeof window !== "undefined" ? window.location.href : "",
       };
 
@@ -150,7 +152,9 @@ export default function OnlineManipalPage() {
   ];
 
   useEffect(() => {
-    setFormData(prev => ({ ...prev, source: "manipal" }));
+    if (typeof window !== "undefined") {
+      setFormData(prev => ({ ...prev, source: window.location.href }));
+    }
   }, []);
 
   useEffect(() => {
@@ -625,6 +629,7 @@ export default function OnlineManipalPage() {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         defaultCourse={selectedCourse}
+        campaign="Meta_Search"
       />
     </div>
   );

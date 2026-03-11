@@ -13,8 +13,13 @@ export async function POST(req: NextRequest) {
     const phone = (typeof body?.phone === "string" ? body.phone : (body?.mobile || "")).trim();
     const program = (typeof body?.program === "string" ? body.program : (body?.course || "")).trim();
     const message = (typeof body?.message === "string" ? body.message : (body?.qualification || "")).trim();
-    const url = (typeof body?.url === "string" ? body.url : "").trim();
     const state = (typeof body?.state === "string" ? body.state : "").trim();
+
+    
+    const incomingSource = (typeof body?.source === "string" ? body.source : "").trim();
+    const source = incomingSource || req.headers.get("referer") || "";
+    const campaign = (typeof body?.campaign === "string" ? body.campaign : "").trim();
+    const university = (typeof body?.university === "string" ? body.university : "Manipal University").trim();
 
     if (!name || !email || !phone) {
       return NextResponse.json(
@@ -23,7 +28,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // ✅ Fix 1: +91 aur 0 prefix handle karo
     let cleanPhone = phone.replace(/\D/g, "");
     if (cleanPhone.length === 12 && cleanPhone.startsWith("91")) {
       cleanPhone = cleanPhone.slice(2);
@@ -46,9 +50,10 @@ export async function POST(req: NextRequest) {
       phone: cleanPhone,
       program: program || null,
       message: message || null,
-      url: url || null,
       state: state || null,
-      source: "manipal",
+      source: source || null,       
+      campaign: campaign || null,   
+      university: university,       
       createdAt: new Date(),
     };
 
@@ -67,9 +72,10 @@ export async function POST(req: NextRequest) {
             email: email.toLowerCase(),
             phone: cleanPhone,
             program: program || "",
-            url: url || null,
             state: state || null,
-            source: "manipal",
+            source: source || null,       
+            campaign: campaign || null,   
+            university: university,       
           }),
         });
 
