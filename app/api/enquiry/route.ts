@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { after } from "next/server";
 import { getCollection } from "@/lib/mongodb";
 
 export const dynamic = "force-dynamic";
@@ -15,7 +16,6 @@ export async function POST(req: NextRequest) {
     const message = (typeof body?.message === "string" ? body.message : (body?.qualification || "")).trim();
     const state = (typeof body?.state === "string" ? body.state : "").trim();
 
-    
     const incomingSource = (typeof body?.source === "string" ? body.source : "").trim();
     const source = incomingSource || req.headers.get("referer") || "";
     const campaign = (typeof body?.campaign === "string" ? body.campaign : "").trim();
@@ -42,58 +42,62 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Save to MongoDB
-    const enquiries = await getCollection("enquiries");
-    const doc = {
-      name,
-      email,
-      phone: cleanPhone,
-      program: program || null,
-      message: message || null,
-      state: state || null,
-      source: source || null,       
-      campaign: campaign || null,   
-      university: university,       
-      createdAt: new Date(),
-    };
-
-    const result = await enquiries.insertOne(doc);
-    console.log("API: Lead saved to MongoDB:", result.insertedId);
-
-    // Send to CRM
-    const CRM_ENDPOINT = process.env.API_ENDPOINT;
-    if (CRM_ENDPOINT) {
+    after(async () => {
       try {
-        const crmResponse = await fetch(CRM_ENDPOINT, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            name,
-            email: email.toLowerCase(),
-            phone: cleanPhone,
-            program: program || "",
-            state: state || null,
-            source: source || null,       
-            campaign: campaign || null,   
-            university: university,       
-          }),
-        });
+        const enquiries = await getCollection("enquiries");
+        const doc = {
+          name,
+          email,
+          phone: cleanPhone,
+          program: program || null,
+          message: message || null,
+          state: state || null,
+          source: source || null,
+          campaign: campaign || null,
+          university: university,
+          createdAt: new Date(),
+        };
 
-        if (!crmResponse.ok) {
-          const errorData = await crmResponse.json().catch(() => null);
-          console.error("CRM API Error:", {
-            status: crmResponse.status,
-            errorData,
-          });
-        } else {
-          console.log("API: Lead successfully sent to CRM ✅");
+        const result = await enquiries.insertOne(doc);
+        console.log("API: Lead saved to MongoDB:", result.insertedId);
+
+        const CRM_ENDPOINT = process.env.API_ENDPOINT;
+        if (CRM_ENDPOINT) {
+          try {
+            const crmResponse = await fetch(CRM_ENDPOINT, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                name,
+                email: email.toLowerCase(),
+                phone: cleanPhone,
+                program: program || "",
+                state: state || null,
+                source: source || null,
+                campaign: campaign || null,
+                university: university,
+              }),
+            });
+
+            if (!crmResponse.ok) {
+              const errorData = await crmResponse.json().catch(() => null);
+              console.error("CRM API Error:", {
+                status: crmResponse.status,
+                errorData,
+              });
+            } else {
+              console.log("API: Lead successfully sent to CRM ✅");
+            }
+          } catch (crmErr) {
+            console.error("Failed to send lead to CRM:", crmErr);
+          }
         }
-      } catch (crmErr) {
-        console.error("Failed to send lead to CRM:", crmErr);
+      } catch (err) {
+        console.error("Background enquiry save failed:", err);
       }
-    }
+    });
 
-    return NextResponse.json({ ok: true, id: result.insertedId }, { status: 201 });
+    return NextResponse.json({ ok: true }, { status: 201 });
   } catch (err) {
     console.error("Server Error:", err);
     return NextResponse.json(
