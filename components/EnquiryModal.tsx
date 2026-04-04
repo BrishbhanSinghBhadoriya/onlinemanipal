@@ -36,10 +36,7 @@ export default function EnquiryModal({ isOpen, onClose, defaultCourse, sourceId,
         university: "Manipal University",  // hamesha fixed
     });
     const [loading, setLoading] = useState(false);
-    const [success, setSuccess] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const callLink = "tel:+917042646766";
-    const chatLink = "https://wa.me/917042646766?text=Hi%20I%20am%20interested%20in%20Online%20Manipal%20courses";
 
     // ✅ URL client side set karo
     useEffect(() => {
@@ -116,20 +113,8 @@ export default function EnquiryModal({ isOpen, onClose, defaultCourse, sourceId,
             const data = await res.json();
 
             if (data.ok) {
-                setSuccess(true);
-                setFormData({
-                    name: "",
-                    email: "",
-                    phone: "",
-                    program: "",
-                    state: "",
-                    source: typeof window !== "undefined" ? window.location.href : "",
-                    campaign: campaign || "",
-                    university: "Manipal University",
-                });
-                setTimeout(() => {
-                    router.push("/thank-you");
-                }, 2000);
+                onClose();
+                router.push("/thank-you");
             } else {
                 setError(data.error || "Something went wrong. Please try again.");
             }
@@ -186,49 +171,7 @@ export default function EnquiryModal({ isOpen, onClose, defaultCourse, sourceId,
                     &times;
                 </button>
 
-                {success ? (
-                    <div style={{ textAlign: "center", padding: "20px 0" }}>
-                        <div style={{ fontSize: "50px", marginBottom: "16px" }}>✅</div>
-                        <h3 style={{ color: "#1a1a2e", marginBottom: "8px" }}>Form Submitted!</h3>
-                        <p style={{ color: "#666", marginBottom: "16px" }}>Select how you want to connect</p>
-                        <div style={{ display: "flex", gap: "10px" }}>
-                            <a
-                                href={callLink}
-                                style={{
-                                    flex: 1,
-                                    background: "#e85d26",
-                                    color: "white",
-                                    textDecoration: "none",
-                                    padding: "12px",
-                                    borderRadius: "8px",
-                                    fontWeight: 700,
-                                    textAlign: "center"
-                                }}
-                            >
-                                📞 Call Now
-                            </a>
-                            <a
-                                href={chatLink}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                style={{
-                                    flex: 1,
-                                    background: "#25D366",
-                                    color: "white",
-                                    textDecoration: "none",
-                                    padding: "12px",
-                                    borderRadius: "8px",
-                                    fontWeight: 700,
-                                    textAlign: "center"
-                                }}
-                            >
-                                💬 Live Chat
-                            </a>
-                        </div>
-                    </div>
-                ) : (
-                    <>
-                        <h3 style={{ textAlign: "center", fontSize: "1.4rem", fontWeight: 800, color: "#1a1a2e", marginBottom: "6px" }}>
+                <h3 style={{ textAlign: "center", fontSize: "1.4rem", fontWeight: 800, color: "#1a1a2e", marginBottom: "6px" }}>
                             Speak to an admission counsellor
                         </h3>
                         <div style={{ display: "flex", justifyContent: "center", gap: "12px", marginBottom: "16px" }}>
@@ -318,9 +261,7 @@ export default function EnquiryModal({ isOpen, onClose, defaultCourse, sourceId,
                             >
                                 {loading ? "Please wait..." : "Apply Now"}
                             </button>
-                        </form>
-                    </>
-                )}
+                </form>
             </div>
         </div>
     );
