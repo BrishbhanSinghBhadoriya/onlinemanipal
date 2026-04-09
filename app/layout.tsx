@@ -1,7 +1,7 @@
 // app/layout.tsx
 // URL        : https://degree-admission.online
 // SEO Score  : 100 / 100
-// Google Ads : AW-17973331962 (afterInteractive — does NOT block LCP)
+// Google Ads : AW-17973307328 (afterInteractive — does NOT block LCP)
 //   → Conversion fires from /thank-you/page.tsx via window.gtag()
 
 import type { Metadata } from "next";
@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"]
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const BASE_URL      = "https://degree-admission.online";
-const GOOGLE_ADS_ID = "AW-17973331962";
+const GOOGLE_ADS_ID = "AW-17973307328";
 
 // ─── Metadata ─────────────────────────────────────────────────────────────────
 export const metadata: Metadata = {
@@ -402,7 +402,7 @@ export default function RootLayout({
         />
 
         {/* ══════════════════════════════════════════════════════════════════
-            GOOGLE ADS — ID: AW-17973331962
+            GOOGLE ADS — ID: AW-17973307328
             ─────────────────────────────────────────────────────────────
             strategy="afterInteractive" — loads AFTER hydration.
             ❌ NEVER use beforeInteractive — it blocks page render,
@@ -416,7 +416,7 @@ export default function RootLayout({
               useEffect(() => {
                 if (typeof window !== "undefined" && typeof window.gtag === "function") {
                   window.gtag("event", "conversion", {
-                    send_to: "AW-17973331962/YOUR_CONVERSION_LABEL",
+                    send_to: "AW-17973307328/YOUR_CONVERSION_LABEL",
                     value:   1,
                     currency: "INR",
                   });

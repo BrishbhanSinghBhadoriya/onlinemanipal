@@ -120,8 +120,8 @@ export default function OnlineManipalPage() {
       const data = await res.json();
 
       if (data.ok) {
-        router.push("/thank-you");
-      } else {
+  router.push("/thank-you?source=google");
+} else {
         setError(data.error || "Something went wrong. Please try again.");
       }
     } catch {
@@ -628,13 +628,13 @@ export default function OnlineManipalPage() {
         </button>
       </div>
 
-      {/* EnquiryModal */}
       <EnquiryModal
-  isOpen={isModalOpen}
-  onClose={() => setIsModalOpen(false)}
-  defaultCourse={selectedCourse}
-  campaign="Google_Search"
-/>
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        defaultCourse={selectedCourse}
+        campaign="Google_Search"
+        conversionSource="google"
+      />
     </div>
   );
 }

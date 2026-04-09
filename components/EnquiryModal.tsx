@@ -21,9 +21,10 @@ interface EnquiryModalProps {
     sourceId?: string;
     afterAction?: "call" | "chat";
     campaign?: string; // ✅ NEW — "Meta" ya "Google_Search" pass karo
+    conversionSource?: "google" | "meta"; // ✅ NEW
 }
 
-export default function EnquiryModal({ isOpen, onClose, defaultCourse, sourceId, afterAction, campaign }: EnquiryModalProps) {
+export default function EnquiryModal({ isOpen, onClose, defaultCourse, sourceId, afterAction, campaign, conversionSource }: EnquiryModalProps) {
     const router = useRouter();
     const [formData, setFormData] = useState<FormData>({
         name: "",
@@ -114,7 +115,8 @@ export default function EnquiryModal({ isOpen, onClose, defaultCourse, sourceId,
 
             if (data.ok) {
                 onClose();
-                router.push("/thank-you");
+                const redirectUrl = conversionSource ? `/thank-you?source=${conversionSource}` : "/thank-you";
+                router.push(redirectUrl);
             } else {
                 setError(data.error || "Something went wrong. Please try again.");
             }

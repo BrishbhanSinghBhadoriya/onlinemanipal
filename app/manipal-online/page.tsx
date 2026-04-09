@@ -120,7 +120,7 @@ export default function OnlineManipalPage() {
       const data = await res.json();
 
       if (data.ok) {
-        router.push("/thank-you");
+        router.push("/thank-you?source=meta");
       } else {
         setError(data.error || "Something went wrong. Please try again.");
       }
@@ -624,12 +624,12 @@ export default function OnlineManipalPage() {
         </button>
       </div>
 
-      {/* EnquiryModal */}
       <EnquiryModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         defaultCourse={selectedCourse}
         campaign="Meta_Search"
+        conversionSource="meta"
       />
     </div>
   );

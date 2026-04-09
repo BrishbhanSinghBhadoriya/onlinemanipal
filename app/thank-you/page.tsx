@@ -1,203 +1,173 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import Script from "next/script";
 
 export default function ThankYouPage() {
     const callLink = "tel:+917042646766";
     const chatLink = "https://wa.me/917042646766?text=Hi%20I%20am%20interested%20in%20Online%20Manipal%20courses";
 
+    const fired = useRef(false);
+
     useEffect(() => {
-        // ✅ Meta Pixel Lead Event (WITH RETRY)
-        let metaAttempts = 0;
+        if (fired.current) return;
+        fired.current = true;
 
-        const fireMetaLead = () => {
-            if (typeof (window as any).fbq === "function") {
-                console.log("✅ Meta Pixel - Lead event fired!");
-                (window as any).fbq("track", "Lead");
-            } else if (metaAttempts < 20) {
-                metaAttempts++;
-                console.log(`⏳ Meta Pixel loading... attempt ${metaAttempts}`);
-                setTimeout(fireMetaLead, 100);
-            }
-        };
+        const params = new URLSearchParams(window.location.search);
+        const source = params.get("source");
 
-        fireMetaLead();
+        console.log("🔥 Source detected:", source);
 
-        // ✅ Google Ads Conversion Event
-        let attempts = 0;
-        const fireConversion = () => {
-            if (typeof (window as any).gtag === "function") {
-                console.log("✅ Google Ads - Conversion fired!");
-                (window as any).gtag("event", "conversion", {
-                    send_to: "AW-17973331962/u2NJCIrsiIEcEPqPrfpC",
-                });
-            } else if (attempts < 20) {
-                attempts++;
-                setTimeout(fireConversion, 100);
-            } else {
-                console.log("🛟 Google Ads fallback - dataLayer push!");
-                (window as any).dataLayer = (window as any).dataLayer || [];
-                (window as any).dataLayer.push({
-                    event: "conversion",
-                    send_to: "AW-17973331962/u2NJCIrsiIEcEPqPrfpC",
-                });
-            }
-        };
-        fireConversion();
+        // =========================
+        // ✅ META PIXEL (ONLY META)
+        // =========================
+        if (source === "meta") {
+            let attempts = 0;
+
+            const fireMeta = () => {
+                if (typeof (window as any).fbq === "function") {
+                    console.log("✅ Meta Pixel - Lead Fired");
+                    (window as any).fbq("track", "Lead");
+                } else if (attempts < 20) {
+                    attempts++;
+                    setTimeout(fireMeta, 100);
+                }
+            };
+
+            fireMeta();
+        }
+
+        // =========================
+        // ✅ GOOGLE ADS (ONLY GOOGLE)
+        // =========================
+        if (source === "google") {
+            let attempts = 0;
+
+            const fireGoogle = () => {
+                if (typeof (window as any).gtag === "function") {
+                    console.log("✅ Google Ads - Conversion Fired");
+                    (window as any).gtag("event", "conversion", {
+                        send_to: "AW-17973307328/u2NJCIrsiIEcEPqPrfpC",
+                    });
+                } else if (attempts < 20) {
+                    attempts++;
+                    setTimeout(fireGoogle, 100);
+                }
+            };
+
+            fireGoogle();
+        }
+
     }, []);
 
     return (
         <div className="thank-you-root">
-            {/* Facebook Pixel Script */}
-            <Script id="fb-pixel-thank-you" strategy="afterInteractive">
-                {`
-                !function(f,b,e,v,n,t,s)
-                {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-                n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-                if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-                n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];
-                s.parentNode.insertBefore(t,s)}(window, document,'script',
-                'https://connect.facebook.net/en_US/fbevents.js');
-                fbq('init', '1230848505368304');
-                fbq('track', 'PageView');
-                `}
-            </Script>
-            <noscript>
-                <img
-                    height="1"
-                    width="1"
-                    style={{ display: "none" }}
-                    src="https://www.facebook.com/tr?id=1230848505368304&ev=PageView&noscript=1"
-                    alt="fb-pixel"
-                />
-            </noscript>
+
+            {/* ✅ Load Meta Script ONLY if needed */}
+            <Script
+                id="fb-pixel"
+                strategy="afterInteractive"
+                dangerouslySetInnerHTML={{
+                    __html: `
+                    !function(f,b,e,v,n,t,s)
+                    {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+                    n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+                    if(!f._fbq)f._fbq=n;
+                    n.push=n;n.loaded=!0;n.version='2.0';
+                    n.queue=[];
+                    t=b.createElement(e);t.async=!0;
+                    t.src=v;
+                    s=b.getElementsByTagName(e)[0];
+                    s.parentNode.insertBefore(t,s)
+                    }(window, document,'script',
+                    'https://connect.facebook.net/en_US/fbevents.js');
+                    
+                    fbq('init', '1230848505368304');
+                    fbq('track', 'PageView');
+                    `,
+                }}
+            />
 
             <style>{`
-        .thank-you-root {
-          min-height: 100vh;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          background: linear-gradient(135deg, #fdfcfb 0%, #e2d1c3 100%);
-          font-family: 'Poppins', sans-serif;
-          padding: 20px;
-        }
+                .thank-you-root {
+                    min-height: 100vh;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    background: linear-gradient(135deg, #fdfcfb 0%, #e2d1c3 100%);
+                    font-family: 'Poppins', sans-serif;
+                    padding: 20px;
+                }
 
-        .container {
-          background: white;
-          padding: 60px 40px;
-          border-radius: 20px;
-          box-shadow: 0 15px 35px rgba(0,0,0,0.1);
-          text-align: center;
-          max-width: 500px;
-          width: 100%;
-          animation: slideUp 0.6s ease-out;
-        }
+                .container {
+                    background: white;
+                    padding: 60px 40px;
+                    border-radius: 20px;
+                    box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+                    text-align: center;
+                    max-width: 500px;
+                    width: 100%;
+                }
 
-        @keyframes slideUp {
-          from { opacity: 0; transform: translateY(20px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
+                .success-icon {
+                    font-size: 70px;
+                    color: #4CAF50;
+                    margin-bottom: 20px;
+                }
 
-        .success-icon {
-          font-size: 80px;
-          color: #4CAF50;
-          margin-bottom: 24px;
-        }
+                h1 {
+                    font-size: 2.2rem;
+                    margin-bottom: 10px;
+                    font-weight: 800;
+                }
 
-        h1 {
-          font-size: 2.5rem;
-          color: #1a1a2e;
-          margin-bottom: 16px;
-          font-weight: 800;
-        }
+                p {
+                    color: #666;
+                    margin-bottom: 25px;
+                }
 
-        p {
-          font-size: 1.1rem;
-          color: #666;
-          margin-bottom: 32px;
-          line-height: 1.6;
-        }
+                .actions {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 12px;
+                }
 
-        .actions {
-          display: flex;
-          flex-direction: column;
-          gap: 16px;
-        }
+                .btn {
+                    padding: 12px;
+                    border-radius: 10px;
+                    font-weight: 700;
+                    text-decoration: none;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                }
 
-        .btn {
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          gap: 10px;
-          padding: 14px 24px;
-          border-radius: 12px;
-          font-weight: 700;
-          font-size: 1rem;
-          text-decoration: none;
-          transition: all 0.3s ease;
-          border: none;
-          cursor: pointer;
-        }
+                .btn-call {
+                    background: #e85d26;
+                    color: white;
+                }
 
-        .btn-call {
-          background: #e85d26;
-          color: white;
-        }
+                .btn-chat {
+                    background: #25D366;
+                    color: white;
+                }
 
-        .btn-call:hover {
-          background: #d44c1b;
-          transform: translateY(-2px);
-        }
-
-        .btn-chat {
-          background: #25D366;
-          color: white;
-        }
-
-        .btn-chat:hover {
-          background: #1ebc57;
-          transform: translateY(-2px);
-        }
-
-        .btn-home {
-          background: #1a1a2e;
-          color: white;
-          margin-top: 10px;
-        }
-
-        .btn-home:hover {
-          background: #0f3460;
-          transform: translateY(-2px);
-        }
-
-        @media (max-width: 480px) {
-          .container {
-            padding: 40px 20px;
-          }
-          h1 {
-            font-size: 2rem;
-          }
-        }
-      `}</style>
+                .btn-home {
+                    background: #1a1a2e;
+                    color: white;
+                }
+            `}</style>
 
             <div className="container">
                 <div className="success-icon">✅</div>
                 <h1>Thank You!</h1>
-                <p>Your Enquiry has been successfully submitted. Our academic experts will contact you shortly to guide you further.</p>
+                <p>Your enquiry has been submitted successfully.</p>
 
                 <div className="actions">
-                    <a href={callLink} className="btn btn-call">
-                        📞 Call Now for Immediate Help
-                    </a>
-                    <a href={chatLink} target="_blank" rel="noopener noreferrer" className="btn btn-chat">
-                        💬 Chat with an Expert
-                    </a>
-                    <Link href="/" className="btn btn-home">
-                        Return to Home
-                    </Link>
+                    <a href={callLink} className="btn btn-call">📞 Call Now</a>
+                    <a href={chatLink} target="_blank" className="btn btn-chat">💬 Chat</a>
+                    <Link href="/" className="btn btn-home">Home</Link>
                 </div>
             </div>
         </div>
