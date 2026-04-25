@@ -1,7 +1,7 @@
 // app/layout.tsx
 // URL        : https://degree-admission.online
 // SEO Score  : 100 / 100
-// Google Ads : AW-17973307328 (afterInteractive — does NOT block LCP)
+// Google Ads : AW-17973307328 & AW-17973331962 (afterInteractive — does NOT block LCP)
 //   → Conversion fires from /thank-you/page.tsx via window.gtag()
 
 import type { Metadata } from "next";
@@ -15,7 +15,8 @@ const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"]
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const BASE_URL      = "https://degree-admission.online";
-const GOOGLE_ADS_ID = "AW-17973307328";
+const GOOGLE_ADS_ID_1 = "AW-17973307328";
+const GOOGLE_ADS_ID_2 = "AW-17973331962";
 
 // ─── Metadata ─────────────────────────────────────────────────────────────────
 export const metadata: Metadata = {
@@ -402,42 +403,33 @@ export default function RootLayout({
         />
 
         {/* ══════════════════════════════════════════════════════════════════
-            GOOGLE ADS — ID: AW-17973307328
+            GOOGLE ADS
             ─────────────────────────────────────────────────────────────
             strategy="afterInteractive" — loads AFTER hydration.
-            ❌ NEVER use beforeInteractive — it blocks page render,
-               destroys LCP Core Web Vital, and hurts Google rankings.
-
-            Conversion event fires from /thank-you/page.tsx:
-            ──────────────────────────────────────────────────────────
-            "use client";
-            import { useEffect } from "react";
-            export default function ThankYouPage() {
-              useEffect(() => {
-                if (typeof window !== "undefined" && typeof window.gtag === "function") {
-                  window.gtag("event", "conversion", {
-                    send_to: "AW-17973307328/YOUR_CONVERSION_LABEL",
-                    value:   1,
-                    currency: "INR",
-                  });
-                }
-              }, []);
-              return <div>Thank You!</div>;
-            }
-            ──────────────────────────────────────────────────────────
-            Get YOUR_CONVERSION_LABEL from:
-            Google Ads → Tools → Conversions → [select] → Tag setup
         ══════════════════════════════════════════════════════════════════ */}
         <Script
-          src={`https://www.googletagmanager.com/gtag/js?id=${GOOGLE_ADS_ID}`}
+          src={`https://www.googletagmanager.com/gtag/js?id=${GOOGLE_ADS_ID_1}`}
           strategy="afterInteractive"
         />
-        <Script id="google-ads-init" strategy="afterInteractive">
+        <Script id="google-ads-init-1" strategy="afterInteractive">
           {`
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
             gtag('js', new Date());
-            gtag('config', '${GOOGLE_ADS_ID}');
+            gtag('config', '${GOOGLE_ADS_ID_1}');
+          `}
+        </Script>
+
+        <Script
+          src={`https://www.googletagmanager.com/gtag/js?id=${GOOGLE_ADS_ID_2}`}
+          strategy="afterInteractive"
+        />
+        <Script id="google-ads-init-2" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', '${GOOGLE_ADS_ID_2}');
           `}
         </Script>
 

@@ -39,30 +39,60 @@ export default function ThankYouPage() {
         }
 
         // =========================
-        // ✅ GOOGLE ADS (ONLY GOOGLE)
+        // ✅ GOOGLE ADS (ALL)
         // =========================
-        if (source === "google") {
-            let attempts = 0;
+        let googleAttempts = 0;
+        const fireGoogleConversions = () => {
+            if (typeof (window as any).gtag === "function") {
+                console.log("✅ Google Ads - Conversions Firing");
+                
+                // Conversion 1
+                (window as any).gtag("event", "conversion", {
+                    send_to: "AW-17973307328/5ZjRCKLOiIEcEMDPq_pC",
+                });
 
-            const fireGoogle = () => {
-                if (typeof (window as any).gtag === "function") {
-                    console.log("✅ Google Ads - Conversion Fired");
-                    (window as any).gtag("event", "conversion", {
-                        send_to: "AW-17973307328/u2NJCIrsiIEcEPqPrfpC",
-                    });
-                } else if (attempts < 20) {
-                    attempts++;
-                    setTimeout(fireGoogle, 100);
-                }
-            };
+                // Conversion 2
+                (window as any).gtag("event", "conversion", {
+                    send_to: "AW-17973331962/u2NJCIrsiIEcEPqPrfpC",
+                });
+            } else if (googleAttempts < 20) {
+                googleAttempts++;
+                setTimeout(fireGoogleConversions, 100);
+            }
+        };
 
-            fireGoogle();
-        }
-
+        fireGoogleConversions();
     }, []);
 
     return (
         <div className="thank-you-root">
+
+            {/* ✅ Google Tag Manager Scripts for Thank You Page */}
+            <Script
+                src="https://www.googletagmanager.com/gtag/js?id=AW-17973307328"
+                strategy="afterInteractive"
+            />
+            <Script id="gtag-init-1" strategy="afterInteractive">
+                {`
+                    window.dataLayer = window.dataLayer || [];
+                    function gtag(){dataLayer.push(arguments);}
+                    gtag('js', new Date());
+                    gtag('config', 'AW-17973307328');
+                `}
+            </Script>
+
+            <Script
+                src="https://www.googletagmanager.com/gtag/js?id=AW-17973331962"
+                strategy="afterInteractive"
+            />
+            <Script id="gtag-init-2" strategy="afterInteractive">
+                {`
+                    window.dataLayer = window.dataLayer || [];
+                    function gtag(){dataLayer.push(arguments);}
+                    gtag('js', new Date());
+                    gtag('config', 'AW-17973331962');
+                `}
+            </Script>
 
             {/* ✅ Load Meta Script ONLY if needed */}
             <Script
