@@ -55,7 +55,7 @@ export default function ThankYouPage() {
                 (window as any).gtag("event", "conversion", {
                     send_to: "AW-17973331962/u2NJCIrsiIEcEPqPrfpC",
                 });
-            } else if (googleAttempts < 20) {
+            } else if (googleAttempts < 50) {
                 googleAttempts++;
                 setTimeout(fireGoogleConversions, 100);
             }
@@ -67,32 +67,7 @@ export default function ThankYouPage() {
     return (
         <div className="thank-you-root">
 
-            {/* ✅ Google Tag Manager Scripts for Thank You Page */}
-            <Script
-                src="https://www.googletagmanager.com/gtag/js?id=AW-17973307328"
-                strategy="afterInteractive"
-            />
-            <Script id="gtag-init-1" strategy="afterInteractive">
-                {`
-                    window.dataLayer = window.dataLayer || [];
-                    function gtag(){dataLayer.push(arguments);}
-                    gtag('js', new Date());
-                    gtag('config', 'AW-17973307328');
-                `}
-            </Script>
-
-            <Script
-                src="https://www.googletagmanager.com/gtag/js?id=AW-17973331962"
-                strategy="afterInteractive"
-            />
-            <Script id="gtag-init-2" strategy="afterInteractive">
-                {`
-                    window.dataLayer = window.dataLayer || [];
-                    function gtag(){dataLayer.push(arguments);}
-                    gtag('js', new Date());
-                    gtag('config', 'AW-17973331962');
-                `}
-            </Script>
+            {/* Google Ads base tag already loads globally from app/layout.tsx */}
 
             {/* ✅ Load Meta Script ONLY if needed */}
             <Script
