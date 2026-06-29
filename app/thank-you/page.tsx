@@ -11,32 +11,30 @@ export default function ThankYouPage() {
     const fired = useRef(false);
 
     useEffect(() => {
-        if (fired.current) return;
-        fired.current = true;
+    if (fired.current) return;
+    fired.current = true;
 
-        const params = new URLSearchParams(window.location.search);
-        const source = params.get("source");
+    const params = new URLSearchParams(window.location.search);
+    const source = params.get("source");
 
-        console.log("🔥 Source detected:", source);
+    console.log("🔥 Source detected:", source);
 
-        // =========================
-        // ✅ META PIXEL (ONLY META)
-        // =========================
-        if (source === "meta") {
-            let attempts = 0;
+    // =========================
+    // ✅ META PIXEL (LeadNew Conversion)
+    // =========================
+    let metaAttempts = 0;
+    const fireMeta = () => {
+      if (typeof (window as any).fbq === "function") {
+        console.log("✅ Meta Pixel - PageView & LeadNew Fired");
+        (window as any).fbq("track", "PageView");
+        (window as any).fbq("track", "LeadNew");
+      } else if (metaAttempts < 50) {
+        metaAttempts++;
+        setTimeout(fireMeta, 100);
+      }
+    };
 
-            const fireMeta = () => {
-                if (typeof (window as any).fbq === "function") {
-                    console.log("✅ Meta Pixel - Lead Fired");
-                    (window as any).fbq("track", "Lead");
-                } else if (attempts < 20) {
-                    attempts++;
-                    setTimeout(fireMeta, 100);
-                }
-            };
-
-            fireMeta();
-        }
+    fireMeta();
 
         // =========================
         // ✅ GOOGLE ADS (ALL)
@@ -69,30 +67,35 @@ export default function ThankYouPage() {
 
             {/* Google Ads base tag already loads globally from app/layout.tsx */}
 
-            {/* ✅ Load Meta Script ONLY if needed */}
-            <Script
-                id="fb-pixel"
-                strategy="afterInteractive"
-                dangerouslySetInnerHTML={{
-                    __html: `
-                    !function(f,b,e,v,n,t,s)
-                    {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-                    n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-                    if(!f._fbq)f._fbq=n;
-                    n.push=n;n.loaded=!0;n.version='2.0';
-                    n.queue=[];
-                    t=b.createElement(e);t.async=!0;
-                    t.src=v;
-                    s=b.getElementsByTagName(e)[0];
-                    s.parentNode.insertBefore(t,s)
-                    }(window, document,'script',
-                    'https://connect.facebook.net/en_US/fbevents.js');
-                    
-                    fbq('init', '1230848505368304');
-                    fbq('track', 'PageView');
-                    `,
-                }}
-            />
+            {/* ✅ Meta Pixel Code */}
+      <Script
+        id="fb-pixel"
+        strategy="afterInteractive"
+        dangerouslySetInnerHTML={{
+          __html: `
+          !function(f,b,e,v,n,t,s)
+          {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+          n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+          if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+          n.queue=[];t=b.createElement(e);t.async=!0;
+          t.src=v;s=b.getElementsByTagName(e)[0];
+          s.parentNode.insertBefore(t,s)}(window, document,'script',
+          'https://connect.facebook.net/en_US/fbevents.js');
+          fbq('init', '1230848505368304');
+          fbq('track', 'PageView');
+          `,
+        }}
+      />
+      <noscript>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          height="1"
+          width="1"
+          style={{ display: "none" }}
+          src="https://www.facebook.com/tr?id=1230848505368304&ev=PageView&noscript=1"
+          alt="fb-pixel"
+        />
+      </noscript>
 
             <style>{`
                 .thank-you-root {
