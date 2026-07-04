@@ -11,30 +11,34 @@ export default function ThankYouPage() {
     const fired = useRef(false);
 
     useEffect(() => {
-    if (fired.current) return;
-    fired.current = true;
+        if (fired.current) return;
+        fired.current = true;
 
-    const params = new URLSearchParams(window.location.search);
-    const source = params.get("source");
+        const params = new URLSearchParams(window.location.search);
+        const source = params.get("source");
 
-    console.log("🔥 Source detected:", source);
+        console.log("🔥 Source detected:", source);
 
-    // =========================
-    // ✅ META PIXEL (LeadNew Conversion)
-    // =========================
-    let metaAttempts = 0;
-    const fireMeta = () => {
-      if (typeof (window as any).fbq === "function") {
-        console.log("✅ Meta Pixel - PageView & LeadNew Fired");
-        (window as any).fbq("track", "PageView");
-        (window as any).fbq("track", "LeadNew");
-      } else if (metaAttempts < 50) {
-        metaAttempts++;
-        setTimeout(fireMeta, 100);
-      }
-    };
+        // =========================
+        // ✅ META PIXEL (Lead Conversion)
+        // Note: PageView already fires from the pixel init script below.
+        // Only the conversion event (Lead) is fired here to avoid duplicate PageViews.
+        // =========================
+        let metaAttempts = 0;
+        const fireMeta = () => {
+            if (typeof (window as any).fbq === "function") {
+                console.log("✅ Meta Pixel - Lead Fired");
+                (window as any).fbq("track", "Lead", {
+                    content_name: "Online Manipal Enquiry",
+                    source: source || "direct",
+                });
+            } else if (metaAttempts < 50) {
+                metaAttempts++;
+                setTimeout(fireMeta, 100);
+            }
+        };
 
-    fireMeta();
+        fireMeta();
 
         // =========================
         // ✅ GOOGLE ADS (ALL)
@@ -43,7 +47,7 @@ export default function ThankYouPage() {
         const fireGoogleConversions = () => {
             if (typeof (window as any).gtag === "function") {
                 console.log("✅ Google Ads - Conversions Firing");
-                
+
                 // Conversion 1
                 (window as any).gtag("event", "conversion", {
                     send_to: "AW-17973307328/5ZjRCKLOiIEcEMDPq_pC",
@@ -67,12 +71,12 @@ export default function ThankYouPage() {
 
             {/* Google Ads base tag already loads globally from app/layout.tsx */}
 
-            {/* ✅ Meta Pixel Code */}
-      <Script
-        id="fb-pixel"
-        strategy="afterInteractive"
-        dangerouslySetInnerHTML={{
-          __html: `
+            {/* ✅ Meta Pixel Init (fires PageView once on load) */}
+            <Script
+                id="fb-pixel"
+                strategy="afterInteractive"
+                dangerouslySetInnerHTML={{
+                    __html: `
           !function(f,b,e,v,n,t,s)
           {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
           n.callMethod.apply(n,arguments):n.queue.push(arguments)};
@@ -84,18 +88,18 @@ export default function ThankYouPage() {
           fbq('init', '1230848505368304');
           fbq('track', 'PageView');
           `,
-        }}
-      />
-      <noscript>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          height="1"
-          width="1"
-          style={{ display: "none" }}
-          src="https://www.facebook.com/tr?id=1230848505368304&ev=PageView&noscript=1"
-          alt="fb-pixel"
-        />
-      </noscript>
+                }}
+            />
+            <noscript>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                    height="1"
+                    width="1"
+                    style={{ display: "none" }}
+                    src="https://www.facebook.com/tr?id=1230848505368304&ev=PageView&noscript=1"
+                    alt="fb-pixel"
+                />
+            </noscript>
 
             <style>{`
                 .thank-you-root {

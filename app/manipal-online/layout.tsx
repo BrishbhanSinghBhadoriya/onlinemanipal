@@ -142,7 +142,9 @@ export const metadata: Metadata = {
 
   // ── Verification ──
   verification: {
-    google: "YOUR_GOOGLE_SEARCH_CONSOLE_TOKEN", // 🔁 Replace
+    // 🔁 TODO: Replace with your real Google Search Console verification token
+    // (currently a placeholder — Search Console verification will NOT work until this is set)
+    google: "YOUR_GOOGLE_SEARCH_CONSOLE_TOKEN",
     // bing: "YOUR_BING_WEBMASTER_TOKEN",        // 🔁 Uncomment & replace
   },
 
@@ -371,7 +373,15 @@ export default function ManipalOnlineLayout({
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
       />
 
-      {/* ── Meta Pixel (Facebook) – PageView ── */}
+      {/*
+        ── Meta Pixel (Facebook) – Base PageView ──
+        NOTE: id="fb-pixel" is intentionally the SAME id used on the
+        /thank-you page. next/script dedupes scripts by id, so this
+        init + PageView will NOT double-fire when navigating between
+        pages inside this layout (e.g. main page -> thank-you page).
+        Do not change this id unless you also update it on child pages,
+        otherwise PageView may fire twice per session.
+      */}
       <Script id="fb-pixel" strategy="afterInteractive">
         {`
           !function(f,b,e,v,n,t,s)
