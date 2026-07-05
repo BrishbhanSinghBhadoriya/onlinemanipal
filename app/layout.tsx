@@ -9,6 +9,9 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Script from "next/script";
 
+// ─── Meta Pixel ID ────────────────────────────────────────────────────────────
+const META_PIXEL_ID = "1230848505368304";
+
 // ─── Fonts ────────────────────────────────────────────────────────────────────
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
@@ -348,7 +351,8 @@ export default function RootLayout({
         <link rel="sitemap" type="application/xml" href="/sitemap.xml" />
 
         {/* ── LCP Image Preload ─────────────────────────────────────────── */}
-        <link rel="preload" as="image" href={`${BASE_URL}/manipal_frame.png`} />
+        {/* Use relative path so the preloaded resource matches the <img src> in the page */}
+        <link rel="preload" as="image" href="/manipal_frame.png" />
 
         {/* ── Branding ──────────────────────────────────────────────────── */}
         <meta name="theme-color" content="#e85d26" />
@@ -437,6 +441,13 @@ export default function RootLayout({
 
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         {children}
+
+        {/* ══════════════════════════════════════════════════════════════════
+            META PIXEL — Root level se HATA diya.
+            Pixel ab sirf manipal-online/layout.tsx aur thank-you/page.tsx
+            mein hai taaki har page pe PageView na fire ho.
+        ══════════════════════════════════════════════════════════════════ */}
+
       </body>
     </html>
   );

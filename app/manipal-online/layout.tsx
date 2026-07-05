@@ -373,39 +373,22 @@ export default function ManipalOnlineLayout({
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
       />
 
-      {/*
-        ── Meta Pixel (Facebook) – Base PageView ──
-        NOTE: id="fb-pixel" is intentionally the SAME id used on the
-        /thank-you page. next/script dedupes scripts by id, so this
-        init + PageView will NOT double-fire when navigating between
-        pages inside this layout (e.g. main page -> thank-you page).
-        Do not change this id unless you also update it on child pages,
-        otherwise PageView may fire twice per session.
-      */}
+      {/* ══════════════════════════════════════════════════════════════════
+          META PIXEL — Home Page (manipal-online)
+          Fires: PageView only
+          ⚠️  Same id="fb-pixel" as thank-you page — Next.js dedupes by id
+              during SPA navigation so it won't double-fire when user
+              navigates /manipal-online → /thank-you in the same session.
+      ══════════════════════════════════════════════════════════════════ */}
       <Script id="fb-pixel" strategy="afterInteractive">
-        {`
-          !function(f,b,e,v,n,t,s)
-          {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-          n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-          if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-          n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;
-          s=b.getElementsByTagName(e)[0];
-          s.parentNode.insertBefore(t,s)}(window,document,'script',
-          'https://connect.facebook.net/en_US/fbevents.js');
-          fbq('init', '1230848505368304');
-          fbq('track', 'PageView');
-        `}
+        {`!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window, document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('init', '1230848505368304');fbq('track', 'PageView');`}
       </Script>
-
-      {/* ── Meta Pixel noscript fallback ── */}
       <noscript>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          height="1"
-          width="1"
-          style={{ display: "none" }}
+          height="1" width="1" style={{ display: "none" }}
           src="https://www.facebook.com/tr?id=1230848505368304&ev=PageView&noscript=1"
-          alt="fb-pixel"
+          alt=""
         />
       </noscript>
 

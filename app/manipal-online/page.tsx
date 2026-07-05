@@ -120,7 +120,21 @@ export default function OnlineManipalPage() {
       const data = await res.json();
 
       if (data.ok) {
-        router.push("/thank-you?source=meta");
+        // Detect source from URL params:
+        // gclid = Google Click ID (present on all Google Ads clicks)
+        // utm_source=google = manual UTM tagging
+        // utm_source=meta / utm_source=facebook = Meta Ads
+        const urlParams = new URLSearchParams(window.location.search);
+        const hasGclid = urlParams.has("gclid");
+        const utmSource = (urlParams.get("utm_source") || "").toLowerCase();
+        const isGoogle = hasGclid || utmSource.includes("google");
+        const isMeta = utmSource.includes("meta") || utmSource.includes("facebook");
+
+        let conversionSource = "meta"; // default — this page is primarily Meta traffic
+        if (isGoogle) conversionSource = "google";
+        else if (isMeta) conversionSource = "meta";
+
+        router.push(`/thank-you?source=${conversionSource}`);
       } else {
         setError(data.error || "Something went wrong. Please try again.");
       }

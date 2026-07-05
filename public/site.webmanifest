@@ -1,0 +1,16 @@
+{
+  "name": "Manipal Online Admission 2026",
+  "short_name": "Manipal Online",
+  "description": "Manipal University Jaipur Online Admission 2026 - MBA, MCA, BBA, BCA & more",
+  "start_url": "/manipal-online",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#e85d26",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "any",
+      "type": "image/x-icon"
+    }
+  ]
+}
