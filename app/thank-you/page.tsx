@@ -8,7 +8,7 @@ export default function ThankYouPage() {
     const callLink = "tel:+917042646766";
     const chatLink = "https://wa.me/917042646766?text=Hi%20I%20am%20interested%20in%20Online%20Manipal%20courses";
 
-    // fired ref ensures conversions fire only once even in React StrictMode
+    // fired ref — ensures events fire exactly once (handles React StrictMode double-invoke)
     const fired = useRef(false);
 
     useEffect(() => {
@@ -20,50 +20,57 @@ export default function ThankYouPage() {
 
         console.log("🔥 Source detected:", source);
 
-        // ─────────────────────────────────────────────────────────────
-        // META PIXEL — LeadNew conversion
-        // Fires ONLY when source=meta (lead came from Meta/Facebook Ad)
-        // PageView already fired from the pixel init Script below.
-        // ─────────────────────────────────────────────────────────────
-        if (source === "meta") {
-            let attempts = 0;
-            const fireMeta = () => {
-                if (typeof (window as any).fbq === "function") {
-                    console.log("✅ Meta Pixel - LeadNew Fired");
-                    (window as any).fbq("track", "LeadNew");
-                } else if (attempts < 50) {
-                    attempts++;
-                    setTimeout(fireMeta, 100);
-                } else {
-                    console.warn("⚠️ Meta Pixel (fbq) not available after retries");
-                }
-            };
-            fireMeta();
-        }
+        // ─────────────────────────────────────────────────────────────────
+        // META PIXEL — LeadNew
+        //
+        // Two cases when this page is reached from Meta:
+        //   1. SPA navigation (/manipal-online → /thank-you):
+        //      fbq is already loaded by manipal-online/layout.tsx Script.
+        //      The <Script id="fb-pixel"> below is skipped by Next.js (dedup).
+        //      So fbq() is available immediately — fire directly.
+        //
+        //   2. Hard refresh / direct URL (/thank-you?source=meta):
+        //      The <Script id="fb-pixel"> below loads the pixel fresh.
+        //      It fires PageView on init. We retry here until fbq is ready.
+        //
+        // We always fire LeadNew regardless of source — this page is ONLY
+        // reached after a successful form submit, so every visit = a lead.
+        // ─────────────────────────────────────────────────────────────────
+        let metaAttempts = 0;
+        const fireLeadNew = () => {
+            if (typeof (window as any).fbq === "function") {
+                (window as any).fbq("track", "LeadNew");
+                console.log("✅ Meta Pixel - LeadNew Fired");
+            } else if (metaAttempts < 60) {
+                metaAttempts++;
+                setTimeout(fireLeadNew, 100); // retry every 100ms, up to 6s
+            } else {
+                console.warn("⚠️ fbq not ready after 6s — LeadNew not fired");
+            }
+        };
+        fireLeadNew();
 
-        // ─────────────────────────────────────────────────────────────
+        // ─────────────────────────────────────────────────────────────────
         // GOOGLE ADS — Conversion
-        // Fires ONLY when source=google (lead came from Google Ad)
-        // gtag base tag loads globally from app/layout.tsx
-        // ─────────────────────────────────────────────────────────────
+        // Fires only when source=google (gclid or utm_source=google in URL)
+        // gtag base tag is loaded globally from app/layout.tsx
+        // ─────────────────────────────────────────────────────────────────
         if (source === "google") {
-            let attempts = 0;
+            let googleAttempts = 0;
             const fireGoogle = () => {
                 if (typeof (window as any).gtag === "function") {
                     console.log("✅ Google Ads - Conversions Firing");
-
                     (window as any).gtag("event", "conversion", {
                         send_to: "AW-17973307328/5ZjRCKLOiIEcEMDPq_pC",
                     });
-
                     (window as any).gtag("event", "conversion", {
                         send_to: "AW-17973331962/u2NJCIrsiIEcEPqPrfpC",
                     });
-                } else if (attempts < 50) {
-                    attempts++;
+                } else if (googleAttempts < 60) {
+                    googleAttempts++;
                     setTimeout(fireGoogle, 100);
                 } else {
-                    console.warn("⚠️ gtag not available after retries");
+                    console.warn("⚠️ gtag not ready after 6s — Google conversion not fired");
                 }
             };
             fireGoogle();
@@ -74,18 +81,24 @@ export default function ThankYouPage() {
         <div className="thank-you-root">
 
             {/*
-              ══════════════════════════════════════════════════════════
-              META PIXEL — Thank You Page
-              Fires: PageView + LeadNew
-              ⚠️  id="fb-pixel" same as manipal-online/layout.tsx.
-                  next/script dedupes by id during SPA nav, so if user
-                  navigated from /manipal-online this Script is skipped
-                  (pixel already initialised). On a direct/hard-refresh
-                  of /thank-you the pixel inits fresh here — correct.
-              ══════════════════════════════════════════════════════════
+              META PIXEL — Thank You Page init
+              ─────────────────────────────────────────────────────────
+              Case 1 — SPA nav from /manipal-online:
+                Next.js sees id="fb-pixel" already registered (same id in
+                manipal-online/layout.tsx) and SKIPS this Script entirely.
+                fbq is already on window → useEffect fires LeadNew directly.
+
+              Case 2 — Hard refresh / direct visit to /thank-you:
+                manipal-online/layout.tsx is NOT in scope. This Script runs,
+                inits the pixel, fires PageView. useEffect retries until
+                fbq is ready, then fires LeadNew.
+
+              NOTE: No fbq('track', 'LeadNew') inside this Script block.
+              LeadNew is fired exclusively from useEffect above so it never
+              double-fires in either case.
             */}
             <Script id="fb-pixel" strategy="afterInteractive">
-                {`!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window, document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('init', '1230848505368304');fbq('track', 'PageView');fbq('track', 'LeadNew');`}
+                {`!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('init','1230848505368304');fbq('track','PageView');`}
             </Script>
             <noscript>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
